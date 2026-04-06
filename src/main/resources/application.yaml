@@ -4,6 +4,21 @@ server:
 spring:
   application:
     name: tcf5-health-record-producer
+  kafka:
+    bootstrap-servers: localhost:19092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+
+    topic:
+      health-record-raw: atendimentos-brutos
+
+  logging:
+    level:
+      org.springframework.kafka: DEBUG
+      com.devrenno.tcf5.health.record.producer: DEBUG
 
 eureka:
   client:
