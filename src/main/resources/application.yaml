@@ -4,10 +4,25 @@ server:
 spring:
   application:
     name: tcf5-health-record-producer
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+
+    topic:
+      health-record-raw: atendimentos-brutos
+
+  logging:
+    level:
+      org.springframework.kafka: DEBUG
+      com.devrenno.tcf5.health.record.producer: DEBUG
 
 eureka:
   client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
   instance:
-    prefer-ip-address: true
+    preferIpAddress: true
