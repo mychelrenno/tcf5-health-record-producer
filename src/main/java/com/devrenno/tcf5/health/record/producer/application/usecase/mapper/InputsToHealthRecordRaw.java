@@ -25,6 +25,7 @@ public class InputsToHealthRecordRaw {
                 throw new IllegalArgumentException("Requisição inválida: corpo do JSON está vazio");
             }
 
+
             return HealthRecordInputDto.builder()
                     .patientId(patientId.trim())
                     .unitOrigin(unitOrigin.trim())

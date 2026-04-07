@@ -5,7 +5,7 @@ spring:
   application:
     name: tcf5-health-record-producer
   kafka:
-    bootstrap-servers: localhost:19092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -22,7 +22,7 @@ spring:
 
 eureka:
   client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
   instance:
-    prefer-ip-address: true
+    preferIpAddress: true

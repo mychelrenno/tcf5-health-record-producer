@@ -5,7 +5,8 @@ services:
     image: docker.redpanda.com/redpandadata/redpanda:latest
     container_name: tcf5-kafka
     command:
-      - redpanda start
+      - redpanda
+      - start
       - --smp=1
       - --memory=1G
       - --reserve-memory=0M
@@ -15,8 +16,8 @@ services:
       - --kafka-addr=PLAINTEXT://0.0.0.0:9092,OUTSIDE://0.0.0.0:29092
       - --advertise-kafka-addr=PLAINTEXT://redpanda:9092,OUTSIDE://host.docker.internal:29092
     ports:
-      - "29092:29092"   # Porta externa para Producer/Consumer (Spring Boot)
-      - "9644:9644"     # Porta de admin/metrics do Redpanda
+      - "29092:29092"
+      - "9644:9644"
     volumes:
       - redpanda_data:/var/lib/redpanda/data
     restart: unless-stopped
@@ -27,9 +28,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      KAFKA_CLUSTERS_0_NAME: "local-redpanda"
+      KAFKA_CLUSTERS_0_NAME: "local"
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "redpanda:9092"
-      KAFKA_CLUSTERS_0_PROPERTIES_BOOTSTRAP_SERVERS: "redpanda:9092"
     depends_on:
       - redpanda
     restart: unless-stopped
@@ -38,7 +38,7 @@ services:
     build: .
     container_name: tcf5-health-record-producer
     ports:
-      - "8082:8082"    # <-- alterado: expor a app no host na 8081 (mapeia para a 8082 do container)
+      - "8082:8082"
     environment:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
       - SERVER_PORT=8082

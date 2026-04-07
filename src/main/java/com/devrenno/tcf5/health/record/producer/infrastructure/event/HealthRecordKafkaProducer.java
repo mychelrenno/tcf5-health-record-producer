@@ -1,6 +1,7 @@
 package com.devrenno.tcf5.health.record.producer.infrastructure.event;
 
 import com.devrenno.tcf5.health.record.producer.application.port.output.HealthRecordProducerPortOutput;
+import com.devrenno.tcf5.health.record.producer.domain.exception.BusinessException;
 import com.devrenno.tcf5.health.record.producer.domain.model.HealthRecordInputDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -8,16 +9,25 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-@Slf4j
+
+
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class HealthRecordKafkaProducer implements HealthRecordProducerPortOutput {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    private final ObjectMapper objectMapper = objectMapper();
 
     @Value("${spring.kafka.topic.health-record-raw}")
     private String topic;
@@ -25,12 +35,13 @@ public class HealthRecordKafkaProducer implements HealthRecordProducerPortOutput
 
     public void publishHealthRecordRaw(HealthRecordInputDto raw) {
         try {
-            // 1. Converte o JSON cru para ObjectNode (fácil de enriquecer)
+
+
+            log.info("Iniciando envio ao Tópico. PatientId: {}", raw.getPatientId());
+
             ObjectNode enriched = objectMapper.readValue(raw.getJsonRaw(), ObjectNode.class);
 
             // 2. Adiciona metadados no corpo (padrão simples "HL7 FHIR-like")
-            enriched.put("patientId", raw.getPatientId());
-            enriched.put("unitOrigin", raw.getUnitOrigin());
             enriched.put("receivedAt", raw.getReceivedAt());
 
             String payload = objectMapper.writeValueAsString(enriched);
@@ -56,7 +67,7 @@ public class HealthRecordKafkaProducer implements HealthRecordProducerPortOutput
 
         } catch (Exception e) {
             log.error("Erro ao enriquecer e publicar prontuário. PatientId: {}", raw.getPatientId(), e);
-            throw new RuntimeException("Falha ao processar prontuário para Kafka", e);
+            throw new BusinessException("Falha ao processar prontuário para Kafka", e.getMessage());
         }
     }
 }

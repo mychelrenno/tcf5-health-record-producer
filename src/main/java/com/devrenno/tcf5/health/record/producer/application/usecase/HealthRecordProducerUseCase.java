@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 
 import static com.devrenno.tcf5.health.record.producer.application.usecase.mapper.InputsToHealthRecordRaw.mapInputsToHealthRecordInputDto;
 
-@Service
+
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class HealthRecordProducerUseCase implements HealthRecordProducerPortInput {
 
-    HealthRecordProducerPortOutput eventPortOutput;
+    private final HealthRecordProducerPortOutput eventPortOutput;
+
     @Override
     public void publishHealthRecordRaw(String jsonRaw, String patientId, String unitOrigin) {
 
@@ -24,6 +26,7 @@ public class HealthRecordProducerUseCase implements HealthRecordProducerPortInpu
         try {
 
             HealthRecordInputDto healthRecordInputDtoEvent = mapInputsToHealthRecordInputDto(jsonRaw, patientId, unitOrigin);
+            log.info("Inputs mapeados com sucesso para processamento assíncrono. Inputs: {}", healthRecordInputDtoEvent);
 
             // Chama o UseCase (que vai para o Producer Kafka)
             eventPortOutput.publishHealthRecordRaw(healthRecordInputDtoEvent);
@@ -32,9 +35,9 @@ public class HealthRecordProducerUseCase implements HealthRecordProducerPortInpu
 
 
         } catch (IllegalArgumentException e) {
-            throw new BusinessException("Erro de validação ao processar prontuário: {}", e.getMessage());
+            throw new BusinessException("Erro de validação ao processar prontuário: ", e.getMessage());
         } catch (Exception e) {
-            throw new BusinessException("Erro inesperado ao processar prontuário do patientId: {}" + patientId, e.getMessage());
+            throw new BusinessException("Erro inesperado ao processar prontuário do patientId: " + patientId, e.getMessage());
         }
     }
 
