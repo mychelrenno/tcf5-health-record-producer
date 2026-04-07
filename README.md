@@ -24,36 +24,22 @@ O serviço publica o JSON cru no Kafka, onde outro serviço (`tcf5-health-record
 - **Lombok**
 - **Maven**
 - **Docker** + **Docker Compose**
-- **Apache Kafka** + **Zookeeper**
-- **Postgres** (utilizado pelos demais serviços)
+- **Apache Kafka** + **Redpanda**
+
 
 ## Estrutura do Projeto (Hexagonal)
+<img width="536" height="923" alt="image" src="https://github.com/user-attachments/assets/8654a4c6-8ac3-4cdf-9411-51936c7b9505" />
 
-src/main/java/com/tcf5/healthrecord/producer
-├── domain
-│ └── model
-│ └── ProntuarioRaw.java
-├── application
-│ ├── port
-│ │ ├── input
-│ │ └── output
-│ └── usecase
-│ └── CadastrarProntuarioUseCase.java
-├── infrastructure
-│ ├── adapter
-│ │ ├── kafka
-│ │ └── web
-│ └── config
-└── HealthRecordProducerApplication.java
+
 
 ## Endpoints
 
-`POST /v1/prontuarios`
+`POST /health-record-producer/v1/publish`
 
-- Parâmetros de Query:
+- Parâmetros de Header:
 
 * `patientId` → CPF ou identificador único do paciente (usado como chave de partição)
-* `unidadeOrigem` → Código da unidade de saúde que está enviando o prontuário
+* `unitOrigin` → Código da unidade de saúde que está enviando o prontuário
 
 - Body: Qualquer JSON válido (prontuário cru)
 
@@ -67,7 +53,7 @@ src/main/java/com/tcf5/healthrecord/producer
 
 ## Como Executar
 
-### 1. Subir as dependências (Kafka + Postgres)
+### 1. Subir as dependências (Kafka)
 
 Na raiz do repositório (ou na pasta `infra`):
 
@@ -88,18 +74,24 @@ java -jar target/tcf5-health-record-producer-0.0.1-SNAPSHOT.jar
 ### 3. Exemplo de requisição (cURL):
 
 ```bash
-curl -X POST http://localhost:8080/v1/prontuarios \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nome": "Maria Oliveira",
-    "cpf": "98765432100",
-    "dataNascimento": "1985-03-15",
-    "pressaoArterial": "120/80",
-    "temperatura": 36.5,
-    "queixa": "Dor de cabeça persistente",
-    "medicamentos": ["Paracetamol 750mg"]
-  }' \
-  -G \
-  --data-urlencode "patientId=98765432100" \
-  --data-urlencode "unidadeOrigem=UBS-VILA_PROGRESSO"
+curl --location 'http://localhost:8082/health-record-producer/v1/publish' \
+--header 'accept: */*' \
+--header 'unitOrigin: UPA_RECIFE_01' \
+--header 'Content-Type: application/json' \
+--header 'patientId: 123.456.789-00' \
+--data '{
+  "hospital_id": "UPA_RECIFE_01",
+  "paciente": {
+    "cpf": "123.456.789-00",
+    "nome": "Thiago Silva"
+  },
+  "atendimento": {
+    "data": "2026-03-26T14:30:00Z",
+    "tipo": "Urgencia",
+    "queixa": "Cefaleia e tontura",
+    "pressao_arterial": "160/100",
+    "diagnostico_cid": "I10",
+    "condicao": "Hipertensão Essencial"
+  }
+}'
 ```
