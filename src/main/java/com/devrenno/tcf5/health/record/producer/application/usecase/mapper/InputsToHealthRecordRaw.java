@@ -1,36 +1,34 @@
 package com.devrenno.tcf5.health.record.producer.application.usecase.mapper;
 
+import com.devrenno.tcf5.health.record.producer.domain.exception.UnauthorizedException;
 import com.devrenno.tcf5.health.record.producer.domain.model.HealthRecordInputDto;
 import lombok.extern.slf4j.Slf4j;
-
-import java.time.Instant;
 
 
 @Slf4j
 public class InputsToHealthRecordRaw {
 
-        public static HealthRecordInputDto mapInputsToHealthRecordInputDto(String jsonRaw, String patientId, String unitOrigin) {
-            log.info("Iniciando processamento do prontuário. PatientId: {} | Unidade: {} | JsonRaw: {}",
-                    patientId, unitOrigin, jsonRaw);
+        public static HealthRecordInputDto mapInputsToHealthRecordInputDto(String jsonRaw, String authorization) throws UnauthorizedException {
+            log.info("Iniciando processamento do prontuário: {}", jsonRaw);
 
-            if (patientId == null || patientId.trim().isEmpty()) {
-                throw new IllegalArgumentException("Requisição inválida: patientId é obrigatório");
+
+            String token = authorization.trim();
+            if (token.isEmpty()) {
+                throw new UnauthorizedException("Requisição não autorizada: authorization está vazio");
+            } else if (token.toLowerCase().startsWith("bearer ")) {
+                token = token.substring(7).trim();
+            } else {
+                throw new UnauthorizedException("Requisição não autorizada: authorization inválido");
             }
 
-            if (unitOrigin == null || unitOrigin.trim().isEmpty()) {
-                throw new IllegalArgumentException("Requisição inválida: unidadeOrigem é obrigatório");
-            }
 
             if (jsonRaw == null || jsonRaw.trim().isEmpty()) {
                 throw new IllegalArgumentException("Requisição inválida: corpo do JSON está vazio");
             }
 
-
             return HealthRecordInputDto.builder()
-                    .patientId(patientId.trim())
-                    .unitOrigin(unitOrigin.trim())
+                    .clientId(token)
                     .jsonRaw(jsonRaw.trim())
-                    .receivedAt(Instant.now().toString())
                     .build();
         }
 }

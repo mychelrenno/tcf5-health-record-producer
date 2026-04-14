@@ -9,12 +9,8 @@ import lombok.*;
 @Builder
 public class HealthRecordInputDto {
 
-    private String patientId;       // CPF ou identificador único
-
-    private String unitOrigin;      // Código da UBS / hospital
+    private String clientId;       // Identificador único
 
     private String jsonRaw;         // JSON original enviado pela unidade (qualquer formato)
-
-    private String receivedAt;      // timestamp de recebimento
 
 }

@@ -15,11 +15,11 @@ public class HealthRecordProducerController implements HealthRecordProducerAPI {
     private final HealthRecordProducerPortInput healthRecordProducerPortInput;
 
     @Override
-    public ResponseEntity<Void> healthRecordPublish(String jsonRaw, String patientId, String unitOrigin) {
+    public ResponseEntity<Void> healthRecordPublish(String jsonRaw, String authorization) {
 
-        log.info("Recebido prontuário da unidade: {} | PatientId: {}", unitOrigin, patientId);
+        log.info("Recebido prontuário: {}", jsonRaw);
 
-        healthRecordProducerPortInput.publishHealthRecordRaw(jsonRaw, patientId, unitOrigin);
+        healthRecordProducerPortInput.publishHealthRecordRaw(jsonRaw, authorization);
 
        // 202 Accepted = processamento assíncrono (ideal para Kafka)
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();

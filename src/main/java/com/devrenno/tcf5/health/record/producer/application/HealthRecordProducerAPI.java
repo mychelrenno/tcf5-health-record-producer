@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @Tag(name = "Health Record Producer", description = "Endpoints para cadastro de prontuários do SUS")
-@RequestMapping("/health-record-producer/v1")
+@RequestMapping("/v1")
 public interface HealthRecordProducerAPI {
     @Operation(
             summary = "Cadastrar prontuário de qualquer unidade SUS",
@@ -38,19 +38,12 @@ public interface HealthRecordProducerAPI {
             String jsonRaw,
 
             @Parameter(
-                    description = "CPF ou identificador único do paciente",
+                    description = "identificador único do paciente",
                     required = true,
-                    example = "12345678901",
+                    example = "Bearer 3c704575-6c02-3230-9677-d8bb1cab8ae9",
                     in = ParameterIn.HEADER
             )
-            @RequestHeader String patientId,
+            @RequestHeader String authorization
 
-            @Parameter(
-                    description = "Código da unidade SUS que está enviando o prontuário",
-                    required = true,
-                    example = "UBS-CENTRO",
-                    in = ParameterIn.HEADER
-            )
-             @RequestHeader String unitOrigin
     );
 }

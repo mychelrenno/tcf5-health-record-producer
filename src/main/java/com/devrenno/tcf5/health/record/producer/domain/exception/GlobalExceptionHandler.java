@@ -41,10 +41,37 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(MissingRequestHeaderException ex) {
+        ErrorResponse error;
+        String message;
+
+        String headerName = ex.getHeaderName();
+
+        if (headerName.equalsIgnoreCase("authorization")) {
+            message = "Requisição não autorizada: Authorization header invalido ou ausente";
+            error = ErrorResponse.builder()
+                    .timestamp(LocalDateTime.now())
+                    .status(HttpStatus.UNAUTHORIZED.value())
+                    .error("Unauthorized")
+                    .message(message)
+                    .build();
+        } else {
+            message = String.format("Header requerido ausente: %s", headerName);
+            error = ErrorResponse.builder()
+                    .timestamp(LocalDateTime.now())
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .error("Invalid Request")
+                    .message(message)
+                    .build();
+        }
+        return new ResponseEntity<>(error, HttpStatus.valueOf(error.getStatus()));
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Invalid Request")
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error("Unauthorized")
                 .message(ex.getMessage())
                 .build(
                 );
@@ -62,6 +89,7 @@ public class GlobalExceptionHandler {
                 );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler (BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
         ErrorResponse error = ErrorResponse.builder()

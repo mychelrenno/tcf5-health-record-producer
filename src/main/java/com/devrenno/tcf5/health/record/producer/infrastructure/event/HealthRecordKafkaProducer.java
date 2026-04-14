@@ -36,37 +36,32 @@ public class HealthRecordKafkaProducer implements HealthRecordProducerPortOutput
     public void publishHealthRecordRaw(HealthRecordInputDto raw) {
         try {
 
-
-            log.info("Iniciando envio ao Tópico. PatientId: {}", raw.getPatientId());
+            log.info("Iniciando envio ao Tópico. JsonRaw: {}", raw.getJsonRaw());
 
             ObjectNode enriched = objectMapper.readValue(raw.getJsonRaw(), ObjectNode.class);
-
-            // 2. Adiciona metadados no corpo (padrão simples "HL7 FHIR-like")
-            enriched.put("receivedAt", raw.getReceivedAt());
 
             String payload = objectMapper.writeValueAsString(enriched);
 
             ProducerRecord<String, String> record = new ProducerRecord<>(
                     topic,
-                    raw.getPatientId(),   // chave de partição (garante ordem por paciente)
+                    raw.getClientId(),   // chave de partição (garante ordem por paciente)
                     payload
             );
 
             // Headers leves (apenas para auditoria, não são usados para transformação)
-            record.headers().add("patientId", raw.getPatientId().getBytes());
-            record.headers().add("unitOrigin", raw.getUnitOrigin().getBytes());
+            record.headers().add("clientId", raw.getClientId().getBytes());
 
             kafkaTemplate.send(record).whenComplete((result, ex) -> {
                 if (ex != null) {
-                    log.error("Falha ao publicar prontuário. PatientId: {}", raw.getPatientId(), ex);
+                    log.error("Falha ao publicar prontuário. ClientId: {}", raw.getClientId(), ex);
                 } else {
-                    log.info("Prontuário enriquecido publicado com sucesso. PatientId: {} | Offset: {}",
-                            raw.getPatientId(), result.getRecordMetadata().offset());
+                    log.info("Prontuário enriquecido publicado com sucesso. ClientId: {} | Offset: {}",
+                            raw.getClientId(), result.getRecordMetadata().offset());
                 }
             });
 
         } catch (Exception e) {
-            log.error("Erro ao enriquecer e publicar prontuário. PatientId: {}", raw.getPatientId(), e);
+            log.error("Erro ao enriquecer e publicar prontuário. ClientId: {}", raw.getClientId(), e);
             throw new BusinessException("Falha ao processar prontuário para Kafka", e.getMessage());
         }
     }
