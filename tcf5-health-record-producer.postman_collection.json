@@ -1,0 +1,94 @@
+{
+  "info": {
+    "_postman_id": "2040d099-91f7-4dc0-a7db-83b7e176d823",
+    "name": "tcf5-health-record-producer",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "33464995"
+  },
+  "item": [
+    {
+      "name": "Exemplo 1  - http://localhost:8082/v1/publish",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer 3c704575-6c02-3230-9677-d8bb1cab8ae9"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"origem_id\": \"LAB_EXAME_PRO\",\r\n  \"paciente\": {\r\n    \"documento\": \"999.888.777-11\",\r\n    \"full_name\": \"Maria Oliveira\"\r\n  },\r\n  \"exam_data\": {\r\n    \"timestamp\": \"2026-03-28T08:00:00Z\",\r\n    \"test_name\": \"Glicose em Jejum\",\r\n    \"result_value\": 126,\r\n    \"unit\": \"mg/dL\",\r\n    \"status\": \"PRE-DIABETES\"\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8082/v1/publish",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "v1",
+            "publish"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Exemplo 2  - http://localhost:8082/v1/publish",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "accept",
+            "value": "*/*"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer 3c704575-6c02-3230-9677-d8bb1cab8ae9"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"origem_id\": \"UPA_RECIFE_01\",\r\n  \"paciente\": {\r\n    \"cpf\": \"123.456.789-00\",\r\n    \"nome\": \"Thiago Silva\"\r\n  },\r\n  \"atendimento\": {\r\n    \"data\": \"2026-03-26T14:30:00Z\",\r\n    \"tipo\": \"Urgencia\",\r\n    \"queixa\": \"Cefaleia e tontura\",\r\n    \"pressao_arterial\": \"160/100\",\r\n    \"diagnostico_cid\": \"I10\",\r\n    \"condicao\": \"Hipertensão Essencial\"\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8082/v1/publish",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "v1",
+            "publish"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
